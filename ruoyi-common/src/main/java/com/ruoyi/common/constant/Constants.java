@@ -45,6 +45,16 @@ public class Constants
     public static final String FAIL = "1";
 
     /**
+     * 通用数据库状态值0
+     */
+    public static final int STATUS_ZERO = 0;
+
+    /**
+     * 通用数据库状态值1
+     */
+    public static final int STATUS_ONE = 1;
+
+    /**
      * 登录成功
      */
     public static final String LOGIN_SUCCESS = "Success";
