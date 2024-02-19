@@ -112,7 +112,7 @@
     </el-row>
 
     <!-- 数据展示table -->
-    <el-table v-loading="loading" :data="templateList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="templateList" row-key="templateId" ref="listTable" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="套餐ID" align="center" prop="templateId" />
       <el-table-column label="套餐名称" align="center" prop="templateName" />
@@ -124,7 +124,7 @@
             {{ scope.row.duration }}{{ scope.row.durationUnit }}
         </template>
       </el-table-column>
-      <el-table-column label="状态" align="center" prop="status" :formatter="statusFormat" >
+      <el-table-column label="状态" align="center" prop="status">
         <template v-slot="scope">
           <span v-if="scope.row.status==0" style="color:red">未启用</span>
           <span v-if="scope.row.status==1" style="color:green">使用中</span>
@@ -205,6 +205,7 @@
 
 <script>
 import { listTemplate, getTemplate, delTemplate, addTemplate, updateTemplate } from "@/api/system/template";
+import Sortable from 'sortablejs';
 
 export default {
   name: "Template",
@@ -278,7 +279,34 @@ export default {
   created() {
     this.getList();
   },
+  mounted(){
+    // 监听拖动
+    this.rowDrop();
+  },
   methods: {
+    /** 拖动排序处理 */
+    rowDrop() {
+      const el = this.$refs.listTable.$el.querySelectorAll('.el-table__body-wrapper>table>tbody')[0]
+      this.sortable=Sortable.create(el,{
+        ghostClass: 'sortable-ghost',
+        setData: function(dataTransfer){
+          dataTransfer.setData('Text','')
+        },
+        onEnd: evt=> {
+          const targetRow = this.templateList.splice(evt.oldIndex,1)[0];
+          this.templateList.splice(evt.newIndex,0,targetRow)
+          // 更新数据库存储的显示顺序
+          this.templateList.forEach((item,index)=>{
+            item.showIndex = index+1
+            updateTemplate(item).then(response => {
+            })
+          })
+          this.$modal.msgSuccess("修改成功");
+          this.open = false;
+          this.getList();
+        }
+      })
+    },
     /** 查询会员套餐模板列表 */
     getList() {
       this.loading = true;
