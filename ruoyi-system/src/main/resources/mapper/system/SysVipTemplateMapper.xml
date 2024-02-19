@@ -37,6 +37,7 @@
             <if test="status != null "> and status = #{status}</if>
             <if test="showIndex != null "> and show_index = #{showIndex}</if>
         </where>
+        order by show_index asc
     </select>
 
     <select id="selectSysVipTemplateByTemplateId" parameterType="String" resultMap="SysVipTemplateResult">
